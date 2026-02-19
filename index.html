@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام المبيعات الزجاجي</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4e54c8">
+    <link rel="apple-touch-icon" href="icon.png">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="intro-overlay">
+        <h1>✨ هل صليت على محمد وآل محمد اليوم؟ ✨</h1>
+        <p style="color:white; opacity:0.8">اللهم صلِّ على محمد وآل محمد</p>
+    </div>
+
+    <div id="customAlert" class="custom-alert-box"></div>
+
+    <div id="pinModal" class="pin-modal">
+        <div class="pin-box">
+            <h3>🔐 حماية النظام</h3>
+            <p>أدخل رمز الحماية للحذف (121)</p>
+            <input type="password" id="securityPin" placeholder="الرمز السري" style="text-align:center; letter-spacing:5px; font-size:1.2em">
+            <div style="display:flex; gap:10px;">
+                <button class="action-btn" onclick="verifyPin()">تأكيد</button>
+                <button class="delete-btn" onclick="closePinModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="pwa-install-banner" class="glass-panel" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:2000; margin:0; border-radius:15px 15px 0 0; flex-direction: column; align-items: center; text-align: center;">
+        <p>حمل التطبيق الآن لأداء أفضل وتشغيل بدون إنترنت</p>
+        <div style="display:flex; gap:10px; width:100%">
+            <button class="action-btn" id="installBtn">تثبيت التطبيق</button>
+            <button class="delete-btn" onclick="document.getElementById('pwa-install-banner').style.display='none'">تخطى</button>
+        </div>
+    </div>
+
+    <nav class="navbar glass-panel">
+        <button class="nav-btn active" onclick="switchTab('products')"><i class="fas fa-box"></i> السلع</button>
+        <button class="nav-btn" onclick="switchTab('customers')"><i class="fas fa-users"></i> الزبائن</button>
+        <button class="nav-btn" onclick="switchTab('sales')"><i class="fas fa-shopping-cart"></i> بيع</button>
+        <button class="nav-btn" onclick="switchTab('records')"><i class="fas fa-file-invoice"></i> السجلات</button>
+        <button class="nav-btn" onclick="switchTab('expenses')"><i class="fas fa-money-bill-wave"></i> صرفيات اليوم</button>
+        <button class="nav-btn" onclick="switchTab('debtors')"><i class="fas fa-hand-holding-usd"></i> المدين</button>
+        <button class="nav-btn" onclick="switchTab('settings')"><i class="fas fa-cog"></i> الإعدادات</button>
+    </nav>
+
+    <div class="container" style="max-width: 800px; margin: auto;">
+
+        <div id="products" class="tab-content active">
+            <div class="glass-panel">
+                <h3><i class="fas fa-plus-circle"></i> إضافة سلعة</h3>
+                <input type="text" id="prodName" placeholder="اسم السلعة">
+                <input type="number" id="prodPrice" placeholder="سعر المفرد">
+                <input type="number" id="prodWholesale" placeholder="سعر الجملة">
+                <input type="number" id="prodQty" placeholder="الكمية">
+                <button class="action-btn" onclick="addProduct()">حفظ السلعة</button>
+            </div>
+            <div class="glass-panel">
+                <h3>قائمة السلع</h3>
+                <div id="productsList"></div>
+            </div>
+        </div>
+
+        <div id="customers" class="tab-content">
+            <div class="glass-panel">
+                <h3><i class="fas fa-user-plus"></i> إضافة زبون</h3>
+                <input type="text" id="custName" placeholder="اسم الزبون">
+                <input type="text" id="custPhone" placeholder="رقم الهاتف (مثال: 780...)">
+                <input type="text" id="custAddress" placeholder="العنوان">
+                <button class="action-btn" onclick="addCustomer()">حفظ الزبون</button>
+            </div>
+            
+            <div class="glass-panel">
+                <input type="text" id="custSearch" onkeyup="renderCustomers()" placeholder="بحث عن زبون...">
+                <div id="customersList"></div>
+            </div>
+        </div>
+
+        <div id="sales" class="tab-content">
+            <div class="glass-panel">
+                <h3><i class="fas fa-cash-register"></i> فاتورة جديدة</h3>
+                
+                <label>نوع السعر:</label>
+                <select id="salePriceType" style="margin-bottom: 10px;">
+                    <option value="retail">سعر المفرد</option>
+                    <option value="wholesale">سعر الجملة</option>
+                </select>
+
+                <label>بحث واختيار الزبون:</label>
+                <input type="text" id="saleCustSearch" list="custDataList" placeholder="ابحث عن اسم الزبون..." oninput="selectCustomerFromSearch()">
+                <datalist id="custDataList"></datalist>
+                <input type="hidden" id="selectedCustId">
+
+                <div style="border-top: 1px solid rgba(255,255,255,0.2); margin: 15px 0;"></div>
+
+                <label>إضافة منتجات للسلة:</label>
+                <input type="text" id="saleProdSearch" list="prodDataList" placeholder="ابحث عن سلعة (اكتب أول حرف)..." oninput="checkProductStock()">
+                <datalist id="prodDataList"></datalist>
+                
+                <div id="stockDisplay" style="font-size: 0.9em; color: #ffeb3b; margin: 5px 0; display:none;">
+                    المتوفر في المخزون: <span id="currentStockVal">0</span>
+                </div>
+
+                <input type="number" id="saleQty" placeholder="الكمية" value="1">
+                <button class="action-btn" onclick="addToCart()"><i class="fas fa-plus"></i> أضف للسلة</button>
+
+                <div id="currentCart" style="margin-top: 20px; background: rgba(0,0,0,0.1); padding: 10px; border-radius: 10px;">
+                    <h4>محتويات الفاتورة:</h4>
+                    <div id="cartItems"></div>
+                    <hr>
+                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                        <span>المجموع الكلي:</span>
+                        <span id="cartTotal">0</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <input type="number" id="amountPaid" placeholder="المبلغ الواصل (التسديد)">
+                    <button class="action-btn" style="background: linear-gradient(90deg, #11998e, #38ef7d);" onclick="checkout()">حفظ وإنشاء الفاتورة</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="records" class="tab-content">
+            <div id="recordsCustomerList" class="glass-panel">
+                <h3>سجلات الزبائن والديون</h3>
+                <input type="text" id="recordSearch" onkeyup="renderRecordsCustomers()" placeholder="بحث في السجلات...">
+                <div id="recordsListContainer"></div>
+            </div>
+
+            <div id="customerRecordsDetail" class="glass-panel" style="display:none;">
+                <button class="delete-btn" onclick="closeCustomerRecords()" style="margin-bottom:10px;">رجوع للقائمة</button>
+                <div style="background: rgba(0,0,0,0.2); padding:15px; border-radius:10px; margin-bottom:15px;">
+                    <h3 id="recCustName"></h3>
+                    <p>إجمالي الديون المتبقية: <strong id="recTotalDebt" style="color:#ff416c; font-size:1.2em;">0</strong></p>
+                    
+                    <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
+                        <input type="number" id="payDebtAmount" placeholder="مبلغ التسديد" style="margin:0;">
+                        <button class="action-btn" onclick="payDebt()" style="width:auto;">تسديد</button>
+                    </div>
+                </div>
+                <h4>سجل الفواتير والدفعات:</h4>
+                <div id="custSpecificInvoices"></div>
+            </div>
+        </div>
+
+        <div id="expenses" class="tab-content">
+            <div class="glass-panel">
+                <h3 style="text-align:center; margin:0;">رصيد مبيعات اليوم</h3>
+                <h2 style="text-align:center; color:#00b09b; margin-top:5px;" id="todaySalesBalance">0</h2>
+            </div>
+            <div class="glass-panel">
+                <h3><i class="fas fa-money-bill-wave"></i> إنشاء مصروف</h3>
+                <input type="number" id="expAmount" placeholder="المبلغ">
+                <input type="text" id="expNotes" placeholder="الملاحظات (اختياري)">
+                <button class="action-btn" onclick="addExpense()">حفظ المصروف</button>
+            </div>
+            <div class="glass-panel">
+                <h3>سجل صرفيات اليوم</h3>
+                <div id="expensesList"></div>
+            </div>
+        </div>
+
+        <div id="debtors" class="tab-content">
+            <div id="debtorsMain" class="glass-panel">
+                <h3><i class="fas fa-user-tag"></i> إنشاء مدين</h3>
+                <input type="number" id="debtorAmount" placeholder="المبلغ الكلي / الرصيد">
+                <input type="text" id="debtorNotes" placeholder="الملاحظات (اسم المدين أو التفاصيل)">
+                <button class="action-btn" onclick="addDebtor()">حفظ المدين</button>
+                <hr>
+                <h3>قائمة المدينين</h3>
+                <div id="debtorsList"></div>
+            </div>
+            <div id="debtorDetail" class="glass-panel" style="display:none;">
+                <button class="delete-btn" onclick="closeDebtor()" style="margin-bottom:10px;">رجوع للقائمة</button>
+                <div style="background: rgba(0,0,0,0.2); padding:15px; border-radius:10px; margin-bottom:15px;">
+                    <h3 id="detDebtorNotes"></h3>
+                    <p>الرصيد الكلي: <strong id="detDebtorBalance" style="color:#ff416c; font-size:1.2em;">0</strong></p>
+                    
+                    <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
+                        <input type="number" id="debtorPayAmount" placeholder="أضف المبلغ للتسديد" style="margin:0;">
+                        <button class="action-btn" onclick="payDebtor()" style="width:auto;"><i class="fas fa-plus"></i> تسديد</button>
+                    </div>
+                </div>
+                <h4>سجل المعاملات:</h4>
+                <div id="debtorTransactions"></div>
+            </div>
+        </div>
+
+        <div id="settings" class="tab-content">
+            <div class="glass-panel">
+                <h3>📊 الموقف المالي (الإحصائيات)</h3>
+                <div style="margin-bottom: 10px;">
+                    <label>عرض حسب الشهر:</label>
+                    <select id="statsMonthSelect" onchange="calculateFinancialStats()">
+                        <option value="all">كل الأشهر</option>
+                        <option value="1">يناير (1)</option>
+                        <option value="2">فبراير (2)</option>
+                        <option value="3">مارس (3)</option>
+                        <option value="4">أبريل (4)</option>
+                        <option value="5">مايو (5)</option>
+                        <option value="6">يونيو (6)</option>
+                        <option value="7">يوليو (7)</option>
+                        <option value="8">أغسطس (8)</option>
+                        <option value="9">سبتمبر (9)</option>
+                        <option value="10">أكتوبر (10)</option>
+                        <option value="11">نوفمبر (11)</option>
+                        <option value="12">ديسمبر (12)</option>
+                    </select>
+                </div>
+                <div class="finance-dashboard">
+                    <div class="finance-card" style="border-bottom: 3px solid #00b09b;">
+                        <h4>مجموع المحصول (الواصل)</h4>
+                        <div id="totalRevenueDisplay" style="color:#00b09b">0</div>
+                    </div>
+                    <div class="finance-card" style="border-bottom: 3px solid #ff416c;">
+                        <h4>مجموع الديون (الباقي)</h4>
+                        <div id="totalDebtDisplay" style="color:#ff416c">0</div>
+                    </div>
+                </div>
+                <button class="delete-btn" style="width:100%; margin-top:5px; background: #555;" onclick="resetStatsFilter()">🔄 تصفير العدادات (إعادة الحساب)</button>
+            </div>
+
+            <div class="glass-panel">
+                <h3>إعدادات المتجر</h3>
+                <label>اسم المحل / الشركة:</label>
+                <input type="text" id="shopName" placeholder="أدخل اسم المتجر">
+                
+                <label>رقم هاتف المتجر:</label>
+                <input type="text" id="shopPhone" placeholder="رقم الهاتف">
+                
+                <button class="action-btn" onclick="saveSettings()">حفظ الإعدادات</button>
+                
+                <hr>
+                
+                <h3>💾 النسخ الاحتياطي والاستعادة</h3>
+                <p style="font-size:0.9em; opacity:0.8;">قم بتحميل نسخة من بياناتك أو استعادتها.</p>
+                <button class="action-btn" onclick="backupData()" style="background: linear-gradient(90deg, #f857a6, #ff5858); margin-bottom:10px;">
+                    <i class="fas fa-download"></i> تحميل نسخة احتياطية
+                </button>
+                
+                <label style="display:block; margin-top:10px;">استعادة نسخة:</label>
+                <input type="file" id="restoreFile" accept=".json">
+                <button class="action-btn" onclick="restoreData()" style="background: linear-gradient(90deg, #4b6cb7, #182848);">
+                    <i class="fas fa-upload"></i> رفع واستعادة البيانات
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="invoiceModal" class="invoice-modal">
+        <div class="invoice-box">
+            <div id="printableArea">
+                <h2 id="printShopName">فاتورة مبيعات</h2>
+                <p id="printShopPhone" style="font-size:0.8em;"></p>
+                <p>التاريخ: <span id="invDate"></span></p>
+                <p>الزبون: <span id="invCust"></span></p>
+                <hr>
+                <table style="width:100%; text-align: right; border-collapse: collapse;">
+                    <thead><tr><th>المادة</th><th>العدد</th><th>السعر</th></tr></thead>
+                    <tbody id="invItems"></tbody>
+                </table>
+                <hr>
+                <p>المجموع: <span id="invTotal"></span></p>
+                <p>الواصل: <span id="invPaid"></span></p>
+                <p>الباقي: <span id="invRem"></span></p>
+            </div>
+            
+            <div class="invoice-actions no-print">
+                <button class="action-btn" style="background: #25D366;" onclick="sendWhatsApp()">واتساب <i class="fab fa-whatsapp"></i></button>
+                <button class="action-btn" style="background: #333;" onclick="window.print()">طباعة <i class="fas fa-print"></i></button>
+                <button class="action-btn" style="background: #ff416c; width: 100%;" onclick="closeInvoice()">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="firebase-config.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // تسجيل Service Worker للعمل أوفلاين
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+            .then(() => console.log("Service Worker Registered"))
+            .catch(err => console.log("SW Error:", err));
+        }
+    </script>
+</body>
+</html>

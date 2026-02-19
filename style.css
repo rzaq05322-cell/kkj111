@@ -1,0 +1,224 @@
+:root {
+    --glass-bg: rgba(255, 255, 255, 0.15);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.2);
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    --primary-color: #4e54c8;
+    --text-color: #fff;
+    --success-color: #00b09b;
+    --warning-color: #fc4a1a;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(45deg, #4e54c8, #8f94fb);
+    min-height: 100vh;
+    margin: 0;
+    color: var(--text-color);
+    overflow-x: hidden;
+}
+
+/* شاشة الترحيب (الدعاء) */
+#intro-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(45deg, #1e3c72, #2a5298);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    animation: fadeOut 0.5s ease-in-out 3s forwards;
+}
+#intro-overlay h1 {
+    font-size: 2em;
+    text-align: center;
+    padding: 20px;
+    animation: zoomIn 1s ease-out;
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+@keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
+
+/* تنسيق الواجهة الزجاجية */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: var(--glass-border);
+    border-radius: 15px;
+    box-shadow: var(--glass-shadow);
+    padding: 20px;
+    margin: 10px;
+}
+
+/* شريط التنقل */
+.navbar {
+    display: flex;
+    justify-content: space-around;
+    padding: 15px;
+    margin-bottom: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-wrap: wrap;
+}
+
+.nav-btn {
+    background: rgba(0,0,0,0.2);
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 14px;
+    margin: 2px;
+}
+
+.nav-btn.active, .nav-btn:hover {
+    background: rgba(255,255,255,0.3);
+    transform: scale(1.05);
+}
+
+/* الحقول والأزرار */
+input, select, button.action-btn {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1);
+    color: white;
+    outline: none;
+    box-sizing: border-box;
+}
+
+input::placeholder { color: rgba(255,255,255,0.7); }
+
+/* تنسيق قائمة الاكمال التلقائي */
+datalist { background: #4e54c8; }
+option { background: #4e54c8; } 
+
+button.action-btn {
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+}
+
+button.delete-btn {
+    background: #ff416c;
+    border: none;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    width: auto;
+    padding: 5px 10px;
+}
+
+/* الجداول والقوائم */
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.tab-content { display: none; animation: fadeIn 0.5s; }
+.tab-content.active { display: block; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* التنبيهات المخصصة */
+.custom-alert-box {
+    position: fixed;
+    top: 20px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.9);
+    padding: 15px 25px;
+    border-radius: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    z-index: 2000;
+    display: none;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.2);
+    animation: slideDown 0.3s;
+}
+@keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
+
+/* نافذة الـ PIN */
+.pin-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 2000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+.pin-box {
+    background: linear-gradient(135deg, #2b5876, #4e4376);
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+/* اللوحة المالية */
+.finance-dashboard {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.finance-card {
+    flex: 1;
+    background: rgba(0,0,0,0.2);
+    padding: 15px;
+    border-radius: 15px;
+    text-align: center;
+}
+.finance-card h4 { margin: 0 0 10px 0; font-size: 0.9em; opacity: 0.8; }
+.finance-card div { font-size: 1.4em; font-weight: bold; }
+
+/* الفاتورة */
+.invoice-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.invoice-box {
+    background: white;
+    color: #333;
+    width: 90%;
+    max-width: 400px;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.invoice-actions button {
+    margin: 5px;
+    width: 45%;
+}
+
+/* طباعة */
+@media print {
+    body * { visibility: hidden; }
+    #printableArea, #printableArea * { visibility: visible; color: black; }
+    #printableArea { position: absolute; left: 0; top: 0; width: 100%; }
+    .no-print { display: none; }
+}
